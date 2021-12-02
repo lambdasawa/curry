@@ -9,8 +9,12 @@ import (
 	"github.com/peterh/liner"
 )
 
+const (
+	Placeholder = "{}"
+)
+
 func main() {
-	baseCommand := os.Args[1:]
+	baseCommand := appendPlaceholderIfNeeded(os.Args[1:])
 
 	line := initLinerState()
 	defer line.Close()
@@ -31,6 +35,14 @@ func main() {
 			panic(err)
 		}
 	}
+}
+
+func appendPlaceholderIfNeeded(baseCommand []string) []string {
+	if strings.Contains(strings.Join(baseCommand, " "), Placeholder) {
+		return baseCommand
+	}
+
+	return append(baseCommand, Placeholder)
 }
 
 func initLinerState() *liner.State {
@@ -56,10 +68,17 @@ func read(line *liner.State) (input string, canceled bool, aborted bool, err err
 }
 
 func eval(baseCommand []string, input string) error {
-	words := strings.Split(input, " ")
-
 	name := baseCommand[0]
-	args := append(append([]string{}, baseCommand[1:]...), words...)
+	args := []string{}
+
+	words := strings.Split(input, " ")
+	for _, c := range baseCommand[1:] {
+		if c == Placeholder {
+			args = append(args, words...)
+		} else {
+			args = append(args, c)
+		}
+	}
 
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout

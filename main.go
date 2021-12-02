@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -32,7 +33,7 @@ func main() {
 		}
 
 		if err := eval(baseCommand, input); err != nil {
-			panic(err)
+			fmt.Fprintf(os.Stderr, "%v\n", err)
 		}
 	}
 }

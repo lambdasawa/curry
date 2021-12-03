@@ -71,6 +71,14 @@ func initPrompt() *prompt.Prompt {
 			return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 		},
 		prompt.OptionPrefix("> "),
+		prompt.OptionAddASCIICodeBind(prompt.ASCIICodeBind{
+			ASCIICode: []byte{0x1b, 0x62},
+			Fn:        prompt.GoLeftWord,
+		}),
+		prompt.OptionAddASCIICodeBind(prompt.ASCIICodeBind{
+			ASCIICode: []byte{0x1b, 0x66},
+			Fn:        prompt.GoRightWord,
+		}),
 	)
 }
 

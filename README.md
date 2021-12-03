@@ -78,7 +78,7 @@ $ curl -s https://httpbin.org/headers | curry jq
 >
 ```
 
-Shortcut key available by [go-promt](https://github.com/c-bata/go-prompt#keyboard-shortcuts).
+Shortcut key available by [go-prompt](https://github.com/c-bata/go-prompt#keyboard-shortcuts).
 
 ## Examples
 

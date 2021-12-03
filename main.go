@@ -1,13 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
 
-	"github.com/peterh/liner"
+	"github.com/c-bata/go-prompt"
 )
 
 const (
@@ -18,22 +19,20 @@ const (
 func main() {
 	baseCommand := appendPlaceholderIfNeeded(os.Args[1:])
 
-	line := initLinerState()
-	defer line.Close()
+	stdin, err := readStdin()
+	if err != nil {
+		panic(err)
+	}
+
+	pt := initPrompt()
 
 	for {
-		input, canceled, aborted, err := read(line)
-		if err != nil {
-			panic(err)
-		}
-		if canceled {
-			os.Exit(0)
-		}
-		if aborted {
-			continue
+		t := pt.Input()
+		if t == "" {
+			break
 		}
 
-		if err := eval(baseCommand, input); err != nil {
+		if err := eval(stdin, baseCommand, t); err != nil {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 		}
 	}
@@ -49,29 +48,33 @@ func appendPlaceholderIfNeeded(baseCommand []string) []string {
 	return append(baseCommand, Placeholder)
 }
 
-func initLinerState() *liner.State {
-	line := liner.NewLiner()
+func readStdin() ([]byte, error) {
+	var stdin []byte
+	fi, _ := os.Stdin.Stat()
 
-	line.SetCtrlCAborts(true)
-
-	return line
-}
-
-func read(line *liner.State) (input string, canceled bool, aborted bool, err error) {
-	if input, err = line.Prompt("> "); err == nil {
-		line.AppendHistory((input))
-
-		return input, false, false, nil
-	} else if err == io.EOF {
-		return "", true, false, nil
-	} else if err == liner.ErrPromptAborted {
-		return "", false, true, nil
-	} else {
-		return "", false, false, err
+	if (fi.Mode() & os.ModeCharDevice) == 0 {
+		bytes, err := ioutil.ReadAll(os.Stdin)
+		if err != nil {
+			return nil, err
+		}
+		stdin = bytes
 	}
+
+	return stdin, nil
 }
 
-func eval(baseCommand []string, input string) error {
+func initPrompt() *prompt.Prompt {
+	return prompt.New(
+		func(in string) {},
+		func(d prompt.Document) []prompt.Suggest {
+			s := []prompt.Suggest{}
+			return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
+		},
+		prompt.OptionPrefix("> "),
+	)
+}
+
+func eval(stdin []byte, baseCommand []string, input string) error {
 	name := baseCommand[0]
 	args := []string{}
 
@@ -86,6 +89,7 @@ func eval(baseCommand []string, input string) error {
 	}
 
 	cmd := exec.Command(name, args...)
+	cmd.Stdin = bytes.NewBuffer(stdin)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

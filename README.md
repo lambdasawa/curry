@@ -61,7 +61,24 @@ sys
 >
 ````
 
-Shortcut key available by [liner](https://github.com/peterh/liner#line-editing).
+`curry` can read stdin.
+
+```
+$ curl -s https://httpbin.org/headers | curry jq
+> .
+{
+  "headers": {
+    "Accept": "*/*",
+    "Host": "httpbin.org",
+    "User-Agent": "curl/7.64.1"
+  }
+}
+> .headers.Host
+"httpbin.org"
+>
+```
+
+Shortcut key available by [go-promt](https://github.com/c-bata/go-prompt#keyboard-shortcuts).
 
 ## Examples
 

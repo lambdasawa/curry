@@ -6,6 +6,11 @@
 $ go install github.com/lambdasawa/curry@latest
 ```
 
+```sh
+$ brew tap lambdasawa/tap
+$ brew install lambdasawa/tap/curry
+```
+
 ## Usage
 
 Basic usage.

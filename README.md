@@ -19,7 +19,7 @@ foo bar fuga
 >
 ```
 
-`curry` replace placeholder (`{}`) like xargs.
+`curry` replace placeholder (`{}`).
 
 ```
 $ curry echo foo {} bar
@@ -30,12 +30,43 @@ foo fuga bar
 >
 ```
 
+`curry` replace and expand placeholder (`{...}`).
+
+```
+$ curry git {}
+> status -s
+git: 'status -s' is not a git command. See 'git --help'.
+exit status 1
+>
+
+$ curry git {...}
+> status -s
+ M README.md
+ M main.go
+>
+
+$ curry mysql -uroot -proot -h127.0.0.1 -P3306 -e {...}
+> show databases
+ERROR 1049 (42000): Unknown database 'databases'
+exit status 1
+>
+
+$ curry mysql -uroot -proot -h127.0.0.1 -P3306 -e {}
+> show databases
+Database
+information_schema
+mysql
+performance_schema
+sys
+>
+````
+
 Shortcut key available by [liner](https://github.com/peterh/liner#line-editing).
 
 ## Examples
 
 ```
-$ curry docker
+$ curry docker {...}
 > ps
 CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES
 > run -d nginx

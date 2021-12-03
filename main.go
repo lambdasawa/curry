@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	Placeholder = "{}"
+	Placeholder       = "{}"
+	ExpandPlaceholder = "{...}"
 )
 
 func main() {
@@ -39,8 +40,10 @@ func main() {
 }
 
 func appendPlaceholderIfNeeded(baseCommand []string) []string {
-	if strings.Contains(strings.Join(baseCommand, " "), Placeholder) {
-		return baseCommand
+	for _, word := range baseCommand {
+		if word == Placeholder || word == ExpandPlaceholder {
+			return baseCommand
+		}
 	}
 
 	return append(baseCommand, Placeholder)
@@ -72,10 +75,11 @@ func eval(baseCommand []string, input string) error {
 	name := baseCommand[0]
 	args := []string{}
 
-	words := strings.Split(input, " ")
 	for _, c := range baseCommand[1:] {
 		if c == Placeholder {
-			args = append(args, words...)
+			args = append(args, input)
+		} else if c == ExpandPlaceholder {
+			args = append(args, strings.Split(input, " ")...)
 		} else {
 			args = append(args, c)
 		}

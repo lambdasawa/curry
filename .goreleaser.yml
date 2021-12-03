@@ -46,7 +46,7 @@ brews:
 
     caveats: "curry <command> [args]"
 
-    homepage: "https://lambdasawa/curry"
+    homepage: "https://github.com/lambdasawa/curry"
 
     description: "curried commandline"
 

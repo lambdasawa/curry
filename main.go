@@ -79,6 +79,10 @@ func initPrompt() *prompt.Prompt {
 			ASCIICode: []byte{0x1b, 0x66},
 			Fn:        prompt.GoRightWord,
 		}),
+		prompt.OptionAddASCIICodeBind(prompt.ASCIICodeBind{
+			ASCIICode: []byte{0x1b, 0x64},
+			Fn:        prompt.DeleteWord,
+		}),
 	)
 }
 

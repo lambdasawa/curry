@@ -28,12 +28,19 @@ func main() {
 		panic(err)
 	}
 
-	pt := initPrompt()
+	pt, err := initPrompt(baseCommand)
+	if err != nil {
+		panic(err)
+	}
 
 	for {
 		t := pt.Input()
 		if t == "" {
 			break
+		}
+
+		if err := saveHistory(baseCommand, t); err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
 		}
 
 		if err := eval(stdin, baseCommand, t); err != nil {
@@ -67,7 +74,15 @@ func readStdin() ([]byte, error) {
 	return stdin, nil
 }
 
-func initPrompt() *prompt.Prompt {
+func initPrompt(baseCommand []string) (*prompt.Prompt, error) {
+	if err := initHistory(baseCommand); err != nil {
+		return nil, err
+	}
+	history, err := readHistory(baseCommand)
+	if err != nil {
+		return nil, err
+	}
+
 	return prompt.New(
 		func(in string) {},
 		func(d prompt.Document) []prompt.Suggest {
@@ -75,6 +90,7 @@ func initPrompt() *prompt.Prompt {
 			return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 		},
 		prompt.OptionPrefix("> "),
+		prompt.OptionHistory(history),
 		prompt.OptionAddASCIICodeBind(prompt.ASCIICodeBind{
 			ASCIICode: []byte{0x1b, 0x62},
 			Fn:        prompt.GoLeftWord,
@@ -89,7 +105,7 @@ func initPrompt() *prompt.Prompt {
 				buf.Delete(buf.Document().FindEndOfCurrentWordWithSpace())
 			},
 		}),
-	)
+	), nil
 }
 
 func eval(stdin []byte, baseCommand []string, input string) error {

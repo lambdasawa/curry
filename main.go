@@ -17,6 +17,10 @@ const (
 )
 
 func main() {
+	if len(os.Args) <= 1 {
+		panic("Argument is empty.")
+	}
+
 	baseCommand := appendPlaceholderIfNeeded(os.Args[1:])
 
 	stdin, err := readStdin()

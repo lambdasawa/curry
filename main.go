@@ -81,7 +81,9 @@ func initPrompt() *prompt.Prompt {
 		}),
 		prompt.OptionAddASCIICodeBind(prompt.ASCIICodeBind{
 			ASCIICode: []byte{0x1b, 0x64},
-			Fn:        prompt.DeleteWord,
+			Fn: func(buf *prompt.Buffer) {
+				buf.Delete(buf.Document().FindEndOfCurrentWordWithSpace())
+			},
 		}),
 	)
 }
